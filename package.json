@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
+    "supabase:types": "cd apps/web && supabase gen types typescript --project-id ttyodulyifjeklyrtqcv > supabase/database.types.ts",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
@@ -19,5 +20,14 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@mantine/dropzone": "^7.13.2",
+    "@mantine/form": "^7.13.2",
+    "@mantine/notifications": "^7.13.2",
+    "@mantinex/mantine-logo": "^1.0.1",
+    "mantine-form-zod-resolver": "^1.1.0",
+    "react-imask": "^7.6.1",
+    "zod": "^3.23.8"
+  }
 }
