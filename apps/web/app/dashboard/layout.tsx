@@ -1,5 +1,7 @@
+import Versioning from "@/actions/versioning";
 import { DashboardSidebar } from "@/components/layout/dashboard/side-bar";
 import OnboardingSetup from "@/components/onboarding/setup";
+import PopupVersioning from "@/components/popup/dashboard/versioning";
 import { createServerClient } from "@/supabase/lib/server";
 import { redirect } from "next/navigation";
 
@@ -30,6 +32,7 @@ export default async function Layout({ children }: {
         avatar_url: profile.data.avatar_url,
         email: user?.email || "",
     }}>
+        <PopupVersioning opened={true} onClose={Versioning} />
 
         {children}
     </DashboardSidebar>

@@ -28,7 +28,8 @@ import {
     IconChevronDown,
     IconCalendar,
     IconBrandCashapp, IconReportAnalytics,
-    IconMessage
+    IconMessage,
+    IconAutomaticGearbox
 
 } from '@tabler/icons-react';
 import classes from './style.module.css';
@@ -38,12 +39,15 @@ import { MantineLogo } from '@mantinex/mantine-logo';
 import { createClient } from '@/supabase/lib/client';
 import { Tables } from '@/supabase/database.types';
 import OnboardingSetup from '@/components/onboarding/setup';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 
 const data = [
-    { link: '', label: 'Overview', icon: IconHome },
-    { link: '', label: 'Teacher management', icon: IconSchool },
+    { link: '/dashboard', label: 'Overview', icon: IconHome },
+    { link: '/dashboard/teacher-management', label: 'Teacher management', icon: IconSchool },
     { link: '', label: 'Student management', icon: IconUsersGroup },
-    { link: '', label: 'Class schedule', icon: IconCalendar },
+    { link: '', label: 'Classes and Levels', icon: IconAutomaticGearbox },
+    { link: '', label: 'Scheduling', icon: IconCalendar },
     { link: '', label: 'Subscriptions', icon: IconBrandCashapp },
     { link: '', label: 'Reports', icon: IconReportAnalytics },
     { link: '', label: 'Communication', icon: IconMessage },
@@ -54,26 +58,22 @@ export function DashboardSidebar({ children, user }: {
     children: React.ReactNode;
     user: Pick<Tables<"profiles">, 'full_name' | 'avatar_url'> & { email: string };
 }) {
-
+    const pathName = usePathname();
     const [opened, { toggle }] = useDisclosure();
-    const [active, setActive] = useState('Overview');
     const [userMenuOpened, setUserMenuOpened] = useState(false);
     const theme = useMantineTheme();
     const links = data.map((item) => (
-        <a
+        <Link
             className={classes.link}
-            data-active={item.label === active || undefined}
+            data-active={item.link === pathName || undefined}
             href={item.link}
             key={item.label}
-            onClick={(event) => {
-                event.preventDefault();
-                setActive(item.label);
-            }}
         >
             <item.icon className={classes.linkIcon} stroke={1.5} />
             <span>{item.label}</span>
-        </a>
+        </Link>
     ));
+
     return (
         <>
 
@@ -222,7 +222,14 @@ export function DashboardSidebar({ children, user }: {
                         </a>
                     </div>
                 </AppShell.Navbar>
-                <AppShell.Main>{children}</AppShell.Main>
+                <AppShell.Main>
+                    <Stack
+                        gap="md"
+                        p={'md'}
+                    >
+                        {children}
+                    </Stack>
+                </AppShell.Main>
             </AppShell>
         </>
     );
