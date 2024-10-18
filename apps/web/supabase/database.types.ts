@@ -47,6 +47,35 @@ export type Database = {
           },
         ]
       }
+      levels: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          school_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          school_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          school_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "levels_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -110,6 +139,35 @@ export type Database = {
         }
         Relationships: []
       }
+      specialises: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          school_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          school_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          school_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "specialises_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           created_at: string
@@ -130,6 +188,50 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      teachers: {
+        Row: {
+          contact_email: string | null
+          contact_number: string | null
+          created_at: string
+          first_name: string
+          id: number
+          last_name: string
+          resume_files: string[] | null
+          school_id: number
+          specialty: string | null
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_number?: string | null
+          created_at?: string
+          first_name: string
+          id?: number
+          last_name: string
+          resume_files?: string[] | null
+          school_id: number
+          specialty?: string | null
+        }
+        Update: {
+          contact_email?: string | null
+          contact_number?: string | null
+          created_at?: string
+          first_name?: string
+          id?: number
+          last_name?: string
+          resume_files?: string[] | null
+          school_id?: number
+          specialty?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teachers_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

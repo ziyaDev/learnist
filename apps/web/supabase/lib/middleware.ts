@@ -1,10 +1,15 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { APP_HOSTNAMES } from '@learnist/utils';
 import { createServerClient } from '@supabase/ssr';
+import AppMiddleware from '@/middlware/dashboard-middlware';
+import { parse } from '@/middlware/utils/parse';
 
 export const updateSession = async (request: NextRequest) => {
   // This `try/catch` block is only here for the interactive tutorial.
   // Feel free to remove once you have Supabase connected.
   try {
+    const { domain, path, key, fullKey, fullPath } = parse(request);
+
     // Create an unmodified response
     let response = NextResponse.next({
       request: {
@@ -37,29 +42,29 @@ export const updateSession = async (request: NextRequest) => {
     // https://supabase.com/docs/guides/auth/server-side/nextjs
     const {
       data: { user },
-      error,
     } = await supabase.auth.getUser();
-
-    // protected routes
-    if ((request.nextUrl.pathname.startsWith('/dashboard') && error) || !user) {
-      return NextResponse.redirect(new URL('/auth/login', request.url));
+    // for App
+    if (APP_HOSTNAMES.has(domain)) {
+      if (user) {
+        return AppMiddleware(request, user);
+      } else if (
+        !user &&
+        path !== '/login' &&
+        path !== '/forgot-password' &&
+        path !== '/register' &&
+        path !== '/auth/saml' &&
+        !path.startsWith('/auth/reset-password/')
+      ) {
+        return NextResponse.redirect(
+          new URL(
+            `/login${path === '/' ? '' : `?next=${encodeURIComponent(fullPath)}`}`,
+            request.url
+          )
+        );
+      }
     }
-    const school = await supabase
-      .from('schools')
-      .select('*', { count: 'exact' })
-      .eq('user_id', user.id);
-    if (request.nextUrl.pathname.startsWith('/dashboard') && school.count === 0) {
-      return NextResponse.redirect(new URL('/onboarding/create-school', request.url));
-    }
-    if (request.nextUrl.pathname === '/' && !error) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
-
     return response;
   } catch (e) {
-    // If you are here, a Supabase client could not be created!
-    // This is likely because you have not set up environment variables.
-    // Check out http://localhost:3000 for Next Steps.
     return NextResponse.next({
       request: {
         headers: request.headers,
