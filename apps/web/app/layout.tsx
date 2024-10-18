@@ -3,6 +3,8 @@ import React from 'react';
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import { theme, colorSchemeManager } from '../theme';
 import { Notifications } from '@mantine/notifications';
+import '@mantine/dates/styles.css';
+import '@mantine/dropzone/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/core/styles.css';
 export const metadata = {

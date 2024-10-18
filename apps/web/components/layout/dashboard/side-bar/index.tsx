@@ -39,34 +39,35 @@ import { MantineLogo } from '@mantinex/mantine-logo';
 import { createClient } from '@/supabase/lib/client';
 import { Tables } from '@/supabase/database.types';
 import OnboardingSetup from '@/components/onboarding/setup';
-import { usePathname } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 
-const data = [
-    { link: '/dashboard', label: 'Overview', icon: IconHome },
-    { link: '/dashboard/teacher-management', label: 'Teacher management', icon: IconSchool },
-    { link: '', label: 'Student management', icon: IconUsersGroup },
-    { link: '', label: 'Classes and Levels', icon: IconAutomaticGearbox },
-    { link: '', label: 'Scheduling', icon: IconCalendar },
-    { link: '', label: 'Subscriptions', icon: IconBrandCashapp },
-    { link: '', label: 'Reports', icon: IconReportAnalytics },
-    { link: '', label: 'Communication', icon: IconMessage },
-    { link: '', label: 'Settings', icon: IconSettings },
+export const dashboard_routes = [
+    { link: '', label: 'Overview', icon: IconHome },
+    { link: '/teachers', label: 'Teacher management', icon: IconSchool },
+    { link: '/students', label: 'Student management', icon: IconUsersGroup },
+    { link: '/classes', label: 'Classes and Levels', icon: IconAutomaticGearbox },
+    { link: '/scheduling', label: 'Scheduling', icon: IconCalendar },
+    { link: '/subscriptions', label: 'Subscriptions', icon: IconBrandCashapp },
+    { link: '/reports', label: 'Reports', icon: IconReportAnalytics },
+    { link: '/communication', label: 'Communication', icon: IconMessage },
+    { link: '/settings', label: 'Settings', icon: IconSettings },
 ];
 
 export function DashboardSidebar({ children, user }: {
     children: React.ReactNode;
     user: Pick<Tables<"profiles">, 'full_name' | 'avatar_url'> & { email: string };
 }) {
+    const param = useParams()
     const pathName = usePathname();
     const [opened, { toggle }] = useDisclosure();
     const [userMenuOpened, setUserMenuOpened] = useState(false);
     const theme = useMantineTheme();
-    const links = data.map((item) => (
+    const links = dashboard_routes.map((item) => (
         <Link
             className={classes.link}
-            data-active={item.link === pathName || undefined}
-            href={item.link}
+            data-active={pathName === (`/${param.tenant}` + item.link) || undefined}
+            href={`/${param.tenant}` + item.link}
             key={item.label}
         >
             <item.icon className={classes.linkIcon} stroke={1.5} />

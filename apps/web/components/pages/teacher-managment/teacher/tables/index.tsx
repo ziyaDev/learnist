@@ -4,40 +4,50 @@ import { useState } from 'react';
 import { Table, Checkbox, ScrollArea, Group, Avatar, Text, rem, Card, Pagination, Flex, Divider, TextInput, Button, Select } from '@mantine/core';
 import classes from './style.module.css';
 import { IconFilter, IconSearch, IconSortAscending } from '@tabler/icons-react';
+import { spec } from 'node:test/reporters';
 
 const data = [
    {
       id: '1',
       name: 'Robert Wolfkisser',
-      job: 'Engineer',
+      phone: '+91 987654321',
+      specialization: 'Web Development',
+      date_of_hire: '22 Feb 2023',
       email: 'rob_wolf@gmail.com',
    },
    {
       id: '2',
-
       name: 'Jill Jailbreaker',
-      job: 'Engineer',
+      phone: '+91 987654321',
+      specialization: 'Web Development',
+      date_of_hire: '22 Feb 2023',
       email: 'jj@breaker.com',
    },
    {
       id: '3',
 
       name: 'Henry Silkeater',
-      job: 'Designer',
+      phone: '+91 987654321',
+      specialization: 'Web Development',
+      date_of_hire: '22 Feb 2023',
       email: 'henry@silkeater.io',
    },
    {
       id: '4',
 
       name: 'Bill Horsefighter',
-      job: 'Designer',
+      phone: '+91 987654321',
+      specialization: 'Web Development',
+      date_of_hire: '22 Feb 2023',
       email: 'bhorsefighter@gmail.com',
    },
    {
       id: '5',
 
       name: 'Jeremy Footviewer',
-      job: 'Manager',
+      phone: '+91 987654321',
+      specialization: 'Web Development',
+      date_of_hire: '22 Feb 2023',
       email: 'jeremy@foot.dev',
    },
 ];
@@ -67,7 +77,9 @@ export function TeacherTable() {
                </Group>
             </Table.Td>
             <Table.Td>{item.email}</Table.Td>
-            <Table.Td>{item.job}</Table.Td>
+            <Table.Td>{item.phone}</Table.Td>
+            <Table.Td>{item.specialization}</Table.Td>
+            <Table.Td>{item.date_of_hire}</Table.Td>
          </Table.Tr>
       );
    });
@@ -127,9 +139,11 @@ export function TeacherTable() {
                            indeterminate={selection.length > 0 && selection.length !== data.length}
                         />
                      </Table.Th>
-                     <Table.Th>User</Table.Th>
+                     <Table.Th>Full name</Table.Th>
                      <Table.Th>Email</Table.Th>
-                     <Table.Th>Job</Table.Th>
+                     <Table.Th>Phone</Table.Th>
+                     <Table.Th>Specialization</Table.Th>
+                     <Table.Th>Date of Hire</Table.Th>
                   </Table.Tr>
                </Table.Thead>
                <Table.Tbody>{rows}</Table.Tbody>
