@@ -168,6 +168,44 @@ export type Database = {
           },
         ]
       }
+      students: {
+        Row: {
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          first_name: string
+          id: number
+          last_name: string
+          school_id: number
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          first_name: string
+          id?: number
+          last_name: string
+          school_id: number
+        }
+        Update: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          first_name?: string
+          id?: number
+          last_name?: string
+          school_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "students_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           created_at: string
@@ -192,8 +230,9 @@ export type Database = {
       teachers: {
         Row: {
           contact_email: string | null
-          contact_number: string | null
+          contact_phone: string | null
           created_at: string
+          date_of_hire: string
           first_name: string
           id: number
           last_name: string
@@ -203,8 +242,9 @@ export type Database = {
         }
         Insert: {
           contact_email?: string | null
-          contact_number?: string | null
+          contact_phone?: string | null
           created_at?: string
+          date_of_hire?: string
           first_name: string
           id?: number
           last_name: string
@@ -214,8 +254,9 @@ export type Database = {
         }
         Update: {
           contact_email?: string | null
-          contact_number?: string | null
+          contact_phone?: string | null
           created_at?: string
+          date_of_hire?: string
           first_name?: string
           id?: number
           last_name?: string

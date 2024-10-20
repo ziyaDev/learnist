@@ -1,8 +1,6 @@
 import PageHeader from "@/components/layout/dashboard/header";
-import NewTeacherModal from "@/components/pages/teacher-managment/create/new-teacher-modal";
-import { TeacherTable } from "@/components/pages/teacher-managment/teacher/tables";
-import { Button } from "@mantine/core";
-import { IconPlus } from "@tabler/icons-react";
+import NewTeacherModal from "@/components/pages/teacher-managment/teacher/create/new-teacher-modal";
+import { TeacherTable } from "@/components/pages/teacher-managment/teacher/tables/data-table";
 
 export default function Page() {
    return <>
