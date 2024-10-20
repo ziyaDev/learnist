@@ -28,7 +28,7 @@ export default function NewTeacherModal() {
          size={'lg'}
          position="left"
       >
-         <NewTeacherForm />
+         <NewTeacherForm closeModal={close} />
       </Drawer>
       <Button onClick={open} leftSection={<IconPlus size={18} />}>Add new teacher</Button>
    </>

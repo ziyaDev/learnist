@@ -2,9 +2,14 @@
 import SpecializationSelect from "@/components/specialises/select-input";
 import UploadResume from "@/components/upload/resume";
 import { createClient } from "@/supabase/lib/client";
+import useSupabase from "@/supabase/lib/use-supabase";
+import { tanstackQueryClient } from "@/utils/provider/queries";
 import { Button, Checkbox, Combobox, Fieldset, Group, Input, InputBase, Loader, Select, TextInput, useCombobox } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm, zodResolver } from "@mantine/form";
+import { notifications } from "@mantine/notifications";
+import { IconCheck } from "@tabler/icons-react";
+import { useMutation } from "@tanstack/react-query";
 import { use, useEffect, useState } from "react";
 import { IMaskInput } from "react-imask";
 import { useDebounceValue } from "usehooks-ts";
@@ -20,33 +25,65 @@ const schema = z.object({
    date_of_hire: z.date(),
 });
 
-export default function NewTeacherForm() {
+export default function NewTeacherForm({ closeModal }: {
+   closeModal?: () => void
+}) {
    const form = useForm<z.infer<typeof schema>>({
       mode: 'controlled',
       validate: zodResolver(schema)
    });
+   const supabase = useSupabase();
+   const { mutate, isPending } = useMutation({
+      mutationFn: async (values: z.infer<typeof schema>) => {
+         return supabase.from("teachers")
+            .insert({
+               first_name: values.first_name,
+               last_name: values.last_name,
+               specialty: values.specialization,
+               resume_files: values.resume,
+               contact_email: values.contact_email,
+               contact_phone: values.contact_phone,
+               date_of_hire: new Date(values.date_of_hire).toISOString(),
+               school_id: 118,
+            })
+      },
+      onSuccess: async () => {
+         // check if specialty already exists
+         await supabase.from("specialises")
+            .select("name")
+            .eq("name", form.getValues().specialization)
+            .single()
+            .then(async ({ data }) => {
+               if (!data) {
+                  // save specialty to db and invalidate cache
+                  await supabase.from("specialises").upsert({
+                     name: form.getValues().specialization,
+                     school_id: 118,
+                  }).then(({ error, data }) => {
+                     if (error) {
+                        notifications.show({
+                           title: "Error",
+                           message: "Something went wrong saving specialty",
+                           color: "red",
+                           icon: <IconCheck />,
+                        })
+                     } else {
+                        notifications.show({
+                           title: "New specialty added",
+                           message: "Specialty added successfully",
+                           color: "green",
+                           icon: <IconCheck />,
+                        })
+                     }
+                  })
+               }
+            })
+         tanstackQueryClient.invalidateQueries({ queryKey: ['teachers'] })
+         closeModal?.()
+      },
+   })
 
-   const [loading, setLoading] = useState(false);
-   const onSubmit = async (values: z.infer<typeof schema>) => {
-      const supabase = createClient();
-      setLoading(true);
-      const { data, error } = await supabase.from("teachers")
-         .insert({
-            first_name: values.first_name,
-            last_name: values.last_name,
-            specialty: values.specialization,
-            resume_files: values.resume,
-            contact_email: values.contact_email,
-            contact_phone: values.contact_phone,
-            date_of_hire: values.date_of_hire,
-
-         })
-      if (error) {
-         console.log(error);
-      }
-      setLoading(false);
-   }
-   return <form onSubmit={form.onSubmit((values) => console.log(values))}>
+   return <form onSubmit={form.onSubmit((values) => mutate(values))}>
       <Fieldset legend="Basic information">
          <TextInput
             withAsterisk
@@ -100,7 +137,7 @@ export default function NewTeacherForm() {
 
       <Group mt="md" justify="space-between" grow>
          <Button variant="default" type="button">Cancel</Button>
-         <Button type="submit">Create</Button>
+         <Button type="submit" loading={isPending}>Create</Button>
       </Group>
 
    </form>

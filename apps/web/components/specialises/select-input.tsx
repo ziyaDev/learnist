@@ -20,9 +20,15 @@ const SpecializationSelect = ({ value, onChange }: { value?: string, onChange: (
    useEffect(() => {
       const getAsyncData = async () => {
          setLoading(true);
-         await supabase.from("specialises").select('*').eq('name', searched)
+         await supabase.from("specialises").select('*')
+            .ilike('name', `%${searched}%`)
+            .eq('school_id', 118)
             .then(({ data }) => {
-               if (data) setData([...data.map((item) => ({ value: item.name, label: item.name })), { value: searched, label: "" }]);
+               if (data) setData([...data.map((item) => ({ value: item.name, label: item.name })),
+               ...(data.some((item) => item.name.includes(searched))
+                  ? []
+                  : [{ value: searched, label: searched }])
+               ]);
                setLoading(false);
                combobox.resetSelectedOption();
             });
