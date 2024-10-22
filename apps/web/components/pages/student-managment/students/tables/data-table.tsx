@@ -11,7 +11,7 @@ import { columns } from './columns';
 import useSupabase from '@/supabase/lib/use-supabase';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { Tables } from "@/supabase/database.types"
-import { useAuth } from '@/supabase/lib/use-auth';
+import { useSession } from '@/supabase/lib/use-auth';
 import { usePagination } from '@mantine/hooks';
 import { useDebounceValue } from 'usehooks-ts';
 
@@ -21,16 +21,16 @@ export function StudentTable() {
    const [selection, setSelection] = useState<Tables<'students'>[]>([]);
    const [sortStatus, setSortStatus] = useState<DataTableSortStatus<Tables<'students'>>>({
       columnAccessor: "created_at",
-      direction: 'asc',
+      direction: "desc",
    });
    const [pagination, setPagination] = useState<{ page: number, pageSize: number }>({ page: 0, pageSize: 10 })
    const [search, setSearch] = useState('')
    const [debouncedSearchValue] = useDebounceValue(search, 500)
    const supabase = useSupabase()
-   const { user } = useAuth()
+   const { school } = useSession()
    const { data, isLoading } = useQuery({
       queryKey: ['students',
-         user?.school?.id,
+         school?.id,
          pagination.page,
          debouncedSearchValue,
          sortStatus
@@ -40,7 +40,7 @@ export function StudentTable() {
          const end = start + pagination.pageSize - 1;
          return supabase.from('students')
             .select('*', { count: 'exact' })
-            .eq('school_id', user?.school.id || 0)
+            .eq('school_id', school.id || "")
             .or(`first_name.ilike.%${debouncedSearchValue}%,last_name.ilike.%${debouncedSearchValue}%`)
             .order(sortStatus.columnAccessor, { ascending: sortStatus.direction === "asc" })
             .range(start, end)

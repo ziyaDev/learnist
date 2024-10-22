@@ -17,11 +17,11 @@ import { useDebounceValue } from 'usehooks-ts';
 
 
 
-export function TeacherTable() {
-   const [selection, setSelection] = useState<Tables<'teachers'>[]>([]);
-   const [sortStatus, setSortStatus] = useState<DataTableSortStatus<Tables<'teachers'>>>({
+export function ClassesTable() {
+   const [selection, setSelection] = useState<Tables<'classes'>[]>([]);
+   const [sortStatus, setSortStatus] = useState<DataTableSortStatus<Tables<'classes'>>>({
       columnAccessor: "created_at",
-      direction: 'desc',
+      direction: 'asc',
    });
    const [pagination, setPagination] = useState<{ page: number, pageSize: number }>({ page: 0, pageSize: 10 })
    const [search, setSearch] = useState('')
@@ -29,7 +29,7 @@ export function TeacherTable() {
    const supabase = useSupabase()
    const { school } = useSession()
    const { data, isLoading } = useQuery({
-      queryKey: ['teachers',
+      queryKey: ['classes',
          school?.id,
          pagination.page,
          debouncedSearchValue,
@@ -38,10 +38,10 @@ export function TeacherTable() {
       queryFn: async () => {
          const start = pagination.page * pagination.pageSize;
          const end = start + pagination.pageSize - 1;
-         return supabase.from('teachers')
+         return supabase.from('classes')
             .select('*', { count: 'exact' })
-            .eq('school_id', school.id || "")
-            .or(`first_name.ilike.%${debouncedSearchValue}%,last_name.ilike.%${debouncedSearchValue}%`)
+            .eq('school_id', school.id || 0)
+            .ilike('name', `%${debouncedSearchValue}%`)
             .order(sortStatus.columnAccessor, { ascending: sortStatus.direction === "asc" })
             .range(start, end)
             .then(res => res)

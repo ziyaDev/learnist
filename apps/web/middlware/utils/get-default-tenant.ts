@@ -9,6 +9,7 @@ const getDefaultSchool = async (user: User) => {
     .select('id')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
+    .limit(1)
     .single();
   if (!data || error) {
     return null;
@@ -23,7 +24,10 @@ const isValidSchoolId = async (school: string, user: User) => {
     .eq('user_id', user.id)
     .eq('id', school)
     .single();
-  return data?.id;
+  if (!data || error) {
+    return false;
+  }
+  return true;
 };
 
 export { getDefaultSchool, isValidSchoolId };

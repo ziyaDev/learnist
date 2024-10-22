@@ -7,6 +7,7 @@ import Image from "next/image";
 import { IconPlus } from '@tabler/icons-react';
 import { createClient } from '@/supabase/lib/client';
 import { showNotification } from '@mantine/notifications';
+import { v4 as uuid } from 'uuid';
 export default function UploadAvatar({ onChange, value }: {
    onChange: (value: string) => void
    value?: string | null
@@ -27,7 +28,7 @@ export default function UploadAvatar({ onChange, value }: {
          await supabase
             .storage
             .from('avatars')
-            .upload(`${user?.id}/${avatarFile.name}`, avatarFile, {
+            .upload(`${user?.id}/avatar/${uuid()}-${encodeURIComponent(avatarFile.name)}`, avatarFile, {
                cacheControl: '3600',
                upsert: false
             }).then(({ data, error }) => {

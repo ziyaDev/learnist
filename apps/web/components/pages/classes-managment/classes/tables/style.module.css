@@ -1,0 +1,6 @@
+.rowSelected {
+  background-color: var(--mantine-primary-color-light);
+}
+.card {
+  background-color: var(--mantine-color-body);
+}

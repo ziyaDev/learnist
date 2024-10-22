@@ -13,22 +13,40 @@ import { dashboard_routes } from "@/components/layout/dashboard/side-bar";
 export default async function AppMiddleware(req: NextRequest, user: User) {
    const { path, fullPath } = parse(req);
    const isSchoolInvite = req.nextUrl.searchParams.get("invite");
-   const school_id = await getDefaultSchool(user);
-   const schoolIdFromPath = new RegExp("^\\/([^\\/]+)").exec(path);
-   /*
-   * if no tenant is found
-   * if the tenant is not valid
-   * redirect to the default tenant with requested path
-   * if the requested path is not valid it fail with 404
-  */
-   if (!schoolIdFromPath || !(await isValidSchoolId(schoolIdFromPath[1], user))) {
-      const newPath = `${school_id}/${path === "/" ? "" : fullPath}`
+   const default_school_id = await getDefaultSchool(user);
+
+
+   if (
+      !default_school_id
+      && path.startsWith("/dashboard")
+   ) {
       return NextResponse.redirect(
          new URL(
-            newPath, req.url
+            '/onboarding/create-school', req.url
          ),
       )
    }
-   // otherwise, rewrite the path to /app
+   if (path === "/dashboard") {
+      return NextResponse.redirect(
+         new URL(
+            `/dashboard/${default_school_id}`, req.url
+         ),
+      )
+   }
+   /* 
+   * if path starts with /dashboard 
+   * check if school id is valid
+   * if not valid redirect to /not-found
+   */
+   if (path.startsWith('/dashboard')) {
+      const schoolIdFromPath = new RegExp("^\\/dashboard\\/([^\\/]+)").exec(path);
+      if (!schoolIdFromPath) return NextResponse.rewrite(new URL("/not-found", req.url));
+
+      const isValid = await isValidSchoolId(schoolIdFromPath[1] || '', user);
+      if (!schoolIdFromPath || !isValid) {
+         return NextResponse.rewrite(new URL("/not-found", req.url));
+      }
+   }
+
    return NextResponse.next()
 }

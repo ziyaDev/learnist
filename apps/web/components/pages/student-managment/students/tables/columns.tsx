@@ -34,6 +34,13 @@ export const columns: DataTableColumn<Tables<'students'>>[] = [
       title: "Phone",
    },
    {
+      accessor: 'created_at',
+      title: "Create at",
+      render: ({ created_at }) => DateTime.fromISO(created_at).toFormat('HH:mm, dd LLL yyyy'),
+
+      sortable: true
+   },
+   {
       accessor: 'actions',
 
       textAlign: 'center',

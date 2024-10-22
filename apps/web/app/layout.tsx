@@ -9,8 +9,6 @@ import '@mantine/notifications/styles.css';
 import 'mantine-datatable/styles.layer.css';
 import '@mantine/core/styles.css';
 import QueriesProvider from '@/utils/provider/queries';
-import { AuthProvider } from '@/supabase/lib/use-auth';
-
 export const metadata = {
   title: 'Mantine Next.js template',
   description: 'I am using Mantine with Next.js!',
@@ -31,9 +29,8 @@ export default function RootLayout({ children }: PropsWithChildren) {
         <MantineProvider theme={theme} colorSchemeManager={colorSchemeManager} defaultColorScheme='dark'>
           <QueriesProvider>
             <Notifications position='top-right' />
-            <AuthProvider>
-              {children}
-            </AuthProvider>
+            {children}
+
           </QueriesProvider>
         </MantineProvider>
       </body>

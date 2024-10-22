@@ -8,42 +8,34 @@ import { DataTableColumn } from "mantine-datatable"
 import { IconDotsVertical, IconEye } from "@tabler/icons-react"
 
 
-export const columns: DataTableColumn<Tables<'students'>>[] = [
+export const columns: DataTableColumn<Tables<'levels'>>[] = [
    {
-      accessor: "first_name",
-      title: "Full name",
-      render: (student) => {
-         const full_name = student.first_name + " " + student.last_name
-         return <Group gap="sm">
-            <Avatar size={30} name={full_name} radius={26} color="initials" />
-            <Text size="sm" fw={500}>
-               {full_name}
-            </Text>
-         </Group>
-      },
+      accessor: "name",
+      title: "Name",
       sortable: true
    },
-
-   {
-      accessor: "contact_email",
-      title: "Email",
-      sortable: true
-   },
-   {
-      accessor: "contact_phone",
-      title: "Phone",
-   },
-   {
-      accessor: "specialty",
-      title: "Specialization",
-      sortable: true
-   },
-
    {
       accessor: 'created_at',
-      title: "Create at",
-      render: ({ created_at }) => DateTime.fromISO(created_at).toFormat('HH:mm, dd LLL yyyy'),
-
+      title: "Classes ",
+      render: ({ created_at }) => 20,
+      sortable: true
+   },
+   {
+      accessor: 'created_at',
+      title: "Teachers ",
+      render: ({ created_at }) => 20,
+      sortable: true
+   },
+   {
+      accessor: 'created_at',
+      title: "Students ",
+      render: ({ created_at }) => 20,
+      sortable: true
+   },
+   {
+      accessor: 'created_at',
+      title: "Created at",
+      render: ({ created_at }) => DateTime.fromISO(created_at).toFormat('dd LLLL yyyy'),
       sortable: true
    },
    {

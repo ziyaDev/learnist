@@ -9,6 +9,67 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      classes: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          school_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          school_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          school_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classes_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classes_sub_fields: {
+        Row: {
+          class_id: number | null
+          created_at: string
+          field: string
+          id: number
+          value: string
+        }
+        Insert: {
+          class_id?: number | null
+          created_at?: string
+          field: string
+          id?: number
+          value: string
+        }
+        Update: {
+          class_id?: number | null
+          created_at?: string
+          field?: string
+          id?: number
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classes_sub_fields_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       informations: {
         Row: {
           created_at: string
@@ -37,34 +98,29 @@ export type Database = {
           user_id?: string | null
           where_did_u_find_us?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "informations_schoole_id_fkey"
-            columns: ["school_id"]
-            isOneToOne: false
-            referencedRelation: "schools"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       levels: {
         Row: {
           created_at: string
           id: number
+          keywords: string[] | null
           name: string
-          school_id: number | null
+          school_id: string
         }
         Insert: {
           created_at?: string
           id?: number
+          keywords?: string[] | null
           name: string
-          school_id?: number | null
+          school_id: string
         }
         Update: {
           created_at?: string
           id?: number
+          keywords?: string[] | null
           name?: string
-          school_id?: number | null
+          school_id?: string
         }
         Relationships: [
           {
@@ -109,9 +165,9 @@ export type Database = {
           contact_email: string | null
           contact_number: string | null
           created_at: string
-          id: number
+          id: string
           logo_url: string | null
-          name: string
+          name: string | null
           status: string
           user_id: string
         }
@@ -120,10 +176,10 @@ export type Database = {
           contact_email?: string | null
           contact_number?: string | null
           created_at?: string
-          id?: number
+          id?: string
           logo_url?: string | null
-          name: string
-          status?: string
+          name?: string | null
+          status: string
           user_id?: string
         }
         Update: {
@@ -131,9 +187,9 @@ export type Database = {
           contact_email?: string | null
           contact_number?: string | null
           created_at?: string
-          id?: number
+          id?: string
           logo_url?: string | null
-          name?: string
+          name?: string | null
           status?: string
           user_id?: string
         }
@@ -144,19 +200,19 @@ export type Database = {
           created_at: string
           id: number
           name: string
-          school_id: number | null
+          school_id: string
         }
         Insert: {
           created_at?: string
           id?: number
           name: string
-          school_id?: number | null
+          school_id: string
         }
         Update: {
           created_at?: string
           id?: number
           name?: string
-          school_id?: number | null
+          school_id?: string
         }
         Relationships: [
           {
@@ -176,7 +232,7 @@ export type Database = {
           first_name: string
           id: number
           last_name: string
-          school_id: number
+          school_id: string
         }
         Insert: {
           contact_email?: string | null
@@ -185,7 +241,7 @@ export type Database = {
           first_name: string
           id?: number
           last_name: string
-          school_id: number
+          school_id: string
         }
         Update: {
           contact_email?: string | null
@@ -194,7 +250,7 @@ export type Database = {
           first_name?: string
           id?: number
           last_name?: string
-          school_id?: number
+          school_id?: string
         }
         Relationships: [
           {
@@ -237,7 +293,7 @@ export type Database = {
           id: number
           last_name: string
           resume_files: string[] | null
-          school_id: number
+          school_id: string
           specialty: string | null
         }
         Insert: {
@@ -249,7 +305,7 @@ export type Database = {
           id?: number
           last_name: string
           resume_files?: string[] | null
-          school_id: number
+          school_id: string
           specialty?: string | null
         }
         Update: {
@@ -261,7 +317,7 @@ export type Database = {
           id?: number
           last_name?: string
           resume_files?: string[] | null
-          school_id?: number
+          school_id?: string
           specialty?: string | null
         }
         Relationships: [

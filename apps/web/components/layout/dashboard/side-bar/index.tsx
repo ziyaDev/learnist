@@ -29,7 +29,8 @@ import {
     IconCalendar,
     IconBrandCashapp, IconReportAnalytics,
     IconMessage,
-    IconAutomaticGearbox
+    IconAutomaticGearbox,
+    IconCalendarStats
 
 } from '@tabler/icons-react';
 import classes from './style.module.css';
@@ -41,39 +42,59 @@ import { Tables } from '@/supabase/database.types';
 import OnboardingSetup from '@/components/onboarding/setup';
 import { useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { LinksGroup } from './links-group';
+import { useSession } from '@/supabase/lib/use-auth';
 
 export const dashboard_routes = [
     { link: '', label: 'Overview', icon: IconHome },
     { link: '/teachers', label: 'Teacher management', icon: IconSchool },
     { link: '/students', label: 'Student management', icon: IconUsersGroup },
-    { link: '/classes', label: 'Classes and Levels', icon: IconAutomaticGearbox },
+    {
+        link: '/classes', label: 'Classes and Levels', icon: IconAutomaticGearbox, group: [
+            { link: '/classes', label: 'Classes' },
+            { link: '/levels', label: 'Levels' },
+        ]
+    },
     { link: '/scheduling', label: 'Scheduling', icon: IconCalendar },
     { link: '/subscriptions', label: 'Subscriptions', icon: IconBrandCashapp },
     { link: '/reports', label: 'Reports', icon: IconReportAnalytics },
     { link: '/communication', label: 'Communication', icon: IconMessage },
     { link: '/settings', label: 'Settings', icon: IconSettings },
+
 ];
 
 export function DashboardSidebar({ children, user }: {
     children: React.ReactNode;
     user: Pick<Tables<"profiles">, 'full_name' | 'avatar_url'> & { email: string };
 }) {
-    const param = useParams()
     const pathName = usePathname();
+    const { school } = useSession()
     const [opened, { toggle }] = useDisclosure();
     const [userMenuOpened, setUserMenuOpened] = useState(false);
     const theme = useMantineTheme();
-    const links = dashboard_routes.map((item) => (
-        <Link
+    const links = dashboard_routes.map((item) => {
+        if (item.group) {
+            return <LinksGroup
+                {...item}
+                key={item.label}
+                links={item.group.map((link) => ({
+                    label: link.label,
+                    link: `/dashboard/${school.id}` + link.link,
+                    active: pathName === (`/dashboard/${school.id}` + link.link)
+                }))}
+                initiallyOpened={item.group.some((s) => pathName === (`/dashboard/${school.id}` + s.link)) || undefined}
+            />
+        }
+        return <Link
             className={classes.link}
-            data-active={pathName === (`/${param.tenant}` + item.link) || undefined}
-            href={`/${param.tenant}` + item.link}
+            data-active={pathName === (`/dashboard/${school.id}` + item.link) || undefined}
+            href={`/dashboard/${school.id}` + item.link}
             key={item.label}
         >
             <item.icon className={classes.linkIcon} stroke={1.5} />
             <span>{item.label}</span>
         </Link>
-    ));
+    });
 
     return (
         <>
@@ -209,6 +230,7 @@ export function DashboardSidebar({ children, user }: {
                     <div className={classes.navbarMain}>
 
                         {links}
+
                     </div>
 
                     <div className={classes.footer}>

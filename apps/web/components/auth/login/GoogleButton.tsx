@@ -1,6 +1,7 @@
 'use client'
-import { createClient } from '@/supabase/lib/client';
+import useSupabase from '@/supabase/lib/use-supabase';
 import { Button, ButtonProps } from '@mantine/core';
+import { useSearchParams } from 'next/navigation';
 
 function GoogleIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
     return (
@@ -32,11 +33,15 @@ function GoogleIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
 }
 
 export function GoogleButton(props: ButtonProps & React.ComponentPropsWithoutRef<'button'>) {
-    const supabase = createClient();
+    const supabase = useSupabase();
+    const next = useSearchParams().get('next');
     return <Button onClick={() => supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
             redirectTo: `${window.location.origin}/api/auth/callback`,
+            queryParams: {
+                next: next === "" ? "" : `?next=${next}`
+            }
         }
 
     })} leftSection={<GoogleIcon />} variant="default" {...props} />;

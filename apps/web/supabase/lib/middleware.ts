@@ -44,25 +44,14 @@ export const updateSession = async (request: NextRequest) => {
       data: { user },
     } = await supabase.auth.getUser();
     // for App
-    if (APP_HOSTNAMES.has(domain)) {
-      if (user) {
-        return AppMiddleware(request, user);
-      } else if (
-        !user &&
-        path !== '/login' &&
-        path !== '/forgot-password' &&
-        path !== '/register' &&
-        path !== '/auth/saml' &&
-        !path.startsWith('/auth/reset-password/')
-      ) {
-        return NextResponse.redirect(
-          new URL(
-            `/login${path === '/' ? '' : `?next=${encodeURIComponent(fullPath)}`}`,
-            request.url
-          )
-        );
-      }
+    if (user) {
+      return AppMiddleware(request, user);
+    } else if (!user && path.startsWith('/dashboard')) {
+      return NextResponse.redirect(
+        new URL(`/login${path === '/' ? '' : `?next=${encodeURIComponent(fullPath)}`}`, request.url)
+      );
     }
+
     return response;
   } catch (e) {
     return NextResponse.next({

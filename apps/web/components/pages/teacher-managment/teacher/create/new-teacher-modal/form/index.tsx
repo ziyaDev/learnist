@@ -2,6 +2,7 @@
 import SpecializationSelect from "@/components/specialises/select-input";
 import UploadResume from "@/components/upload/resume";
 import { createClient } from "@/supabase/lib/client";
+import { useSession } from "@/supabase/lib/use-auth";
 import useSupabase from "@/supabase/lib/use-supabase";
 import { tanstackQueryClient } from "@/utils/provider/queries";
 import { Button, Checkbox, Combobox, Fieldset, Group, Input, InputBase, Loader, Select, TextInput, useCombobox } from "@mantine/core";
@@ -32,6 +33,7 @@ export default function NewTeacherForm({ closeModal }: {
       mode: 'controlled',
       validate: zodResolver(schema)
    });
+   const { school } = useSession()
    const supabase = useSupabase();
    const { mutate, isPending } = useMutation({
       mutationFn: async (values: z.infer<typeof schema>) => {
@@ -44,7 +46,7 @@ export default function NewTeacherForm({ closeModal }: {
                contact_email: values.contact_email,
                contact_phone: values.contact_phone,
                date_of_hire: new Date(values.date_of_hire).toISOString(),
-               school_id: 118,
+               school_id: school?.id || '',
             })
       },
       onSuccess: async () => {
@@ -58,7 +60,7 @@ export default function NewTeacherForm({ closeModal }: {
                   // save specialty to db and invalidate cache
                   await supabase.from("specialises").upsert({
                      name: form.getValues().specialization,
-                     school_id: 118,
+                     school_id: school?.id || '',
                   }).then(({ error, data }) => {
                      if (error) {
                         notifications.show({
