@@ -1,5 +1,5 @@
-import OnboardingSetup from "@/components/onboarding/setup";
+import OnboardingSetup from '@/components/onboarding/setup';
 
 export default function Page() {
-   return <OnboardingSetup />
+  return <OnboardingSetup />;
 }

@@ -1,10 +1,6 @@
-import { OnboardingLayout } from "@/components/onboarding/layout"
-import { ReactNode } from "react"
+import { ReactNode } from 'react';
+import { OnboardingLayout } from '@/components/onboarding/layout';
 
-export default function Layout({ children }: {
-   children: ReactNode
-}) {
-   return <OnboardingLayout>
-      {children}
-   </OnboardingLayout>
+export default function Layout({ children }: { children: ReactNode }) {
+  return <OnboardingLayout>{children}</OnboardingLayout>;
 }

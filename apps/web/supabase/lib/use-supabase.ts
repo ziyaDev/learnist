@@ -7,5 +7,4 @@ function useSupabase() {
   return useMemo(createClient, []);
 }
 
-
 export default useSupabase;

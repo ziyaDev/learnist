@@ -1,14 +1,16 @@
-
 import React, { PropsWithChildren } from 'react';
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
-import { theme, colorSchemeManager } from '../theme';
 import { Notifications } from '@mantine/notifications';
+import { colorSchemeManager, theme } from '../theme';
+
 import '@mantine/dates/styles.css';
 import '@mantine/dropzone/styles.css';
 import '@mantine/notifications/styles.css';
 import 'mantine-datatable/styles.layer.css';
 import '@mantine/core/styles.css';
+
 import QueriesProvider from '@/utils/provider/queries';
+
 export const metadata = {
   title: 'Mantine Next.js template',
   description: 'I am using Mantine with Next.js!',
@@ -26,11 +28,14 @@ export default function RootLayout({ children }: PropsWithChildren) {
         />
       </head>
       <body>
-        <MantineProvider theme={theme} colorSchemeManager={colorSchemeManager} defaultColorScheme='dark'>
+        <MantineProvider
+          theme={theme}
+          colorSchemeManager={colorSchemeManager}
+          defaultColorScheme="dark"
+        >
           <QueriesProvider>
-            <Notifications position='top-right' />
+            <Notifications position="top-right" />
             {children}
-
           </QueriesProvider>
         </MantineProvider>
       </body>

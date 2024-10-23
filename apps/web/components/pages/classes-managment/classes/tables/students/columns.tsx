@@ -1,6 +1,6 @@
 'use client';
 
-import { IconDotsVertical, IconEye } from '@tabler/icons-react';
+import { IconDotsVertical, IconEye, IconTrash } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DateTime } from 'luxon';
 import { DataTableColumn } from 'mantine-datatable';
@@ -35,19 +35,12 @@ export const columns: DataTableColumn<Tables<'students'>>[] = [
     title: 'Phone',
   },
   {
-    accessor: 'created_at',
-    title: 'Create at',
-    render: ({ created_at }) => DateTime.fromISO(created_at).toFormat('HH:mm, dd LLL yyyy'),
-
-    sortable: true,
-  },
-  {
     accessor: 'actions',
 
     textAlign: 'center',
     render: (company) => (
       <ActionIcon size="sm" variant="light">
-        <IconDotsVertical size={16} />
+        <IconTrash size={16} />
       </ActionIcon>
     ),
   },
