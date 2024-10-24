@@ -13,6 +13,7 @@ import {
   Input,
   InputBase,
   Loader,
+  NumberInput,
   Select,
   Switch,
   TagsInput,
@@ -32,6 +33,7 @@ import classNames from './style.module.css';
 const schema = z.object({
   name: z.string().min(2, { message: 'Name should have at least 2 letters' }),
   level_id: z.coerce.number(),
+  price: z.coerce.number().min(0, { message: 'Price should be greater than 0' }),
   sub_fields: z
     .array(
       z.object({
@@ -49,6 +51,7 @@ export default function NewClassForm({ closeModal }: { closeModal?: () => void }
     validate: zodResolver(schema),
     initialValues: {
       name: '',
+      price: 0,
       level_id: 0,
       sub_fields: [
         {
@@ -69,6 +72,7 @@ export default function NewClassForm({ closeModal }: { closeModal?: () => void }
           name: values.name,
           school_id: school?.id || '',
           level_id: Number(values.level_id),
+          price: values.price
         })
         .select('id')
         .single();
@@ -80,8 +84,12 @@ export default function NewClassForm({ closeModal }: { closeModal?: () => void }
         });
         return;
       }
+      const filterd = values.sub_fields.filter((field) => field.label !== '' || field.value !== '')
+      if (!filterd.length) {
+        return;
+      }
       await supabase.from('classes_sub_fields').insert(
-        values.sub_fields.map((field) => ({
+        filterd.map((field) => ({
           class_id: data.id,
           field: field.label,
           value: field.value,
@@ -110,7 +118,18 @@ export default function NewClassForm({ closeModal }: { closeModal?: () => void }
           key={form.key('name')}
           {...form.getInputProps('name')}
         />
-        <LevelSelect key={form.key('level_id')} {...form.getInputProps('level_id')} />
+        <NumberInput
+          withAsterisk
+          label="Pricing"
+          placeholder="0"
+          key={form.key('price')}
+          {...form.getInputProps('price')}
+        />
+        <LevelSelect
+
+          key={form.key('level_id')}
+          {...form.getInputProps('level_id')}
+        />
       </Fieldset>
       <Fieldset legend="Additional information">
         {form.getValues().sub_fields.map((field, index) => {

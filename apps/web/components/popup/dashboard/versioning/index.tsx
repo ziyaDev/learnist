@@ -20,7 +20,7 @@ export default function PopupVersioning({ opened }: Props) {
 
   return (
     <Modal
-      opened={state}
+      opened={false}
       onClose={close}
       withCloseButton={false}
       padding={0}

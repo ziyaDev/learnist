@@ -13,21 +13,33 @@ export const columns: DataTableColumn<Tables<'levels'>>[] = [
     title: 'Name',
     sortable: true,
   },
-  {
-    accessor: 'created_at',
-    title: 'Classes ',
-    render: ({ created_at }) => 20,
-    sortable: true,
-  },
+
   {
     accessor: 'created_at',
     title: 'Teachers ',
-    render: ({ created_at }) => 20,
+    render: ({ created_at }) =>
+      <Avatar.Group>
+        <Avatar size='md' color="initials" name='abdo s' />
+        <Avatar size='md' color="initials" name='das dy' />
+        <Avatar size='md' color="initials" name='lorem2 s' />
+        <Avatar size='md' color="initials">+5</Avatar>
+      </Avatar.Group>,
     sortable: true,
   },
   {
     accessor: 'created_at',
     title: 'Students ',
+    render: ({ created_at }) => <Avatar.Group>
+      <Avatar size='md' color="initials" name='ojs iash' />
+      <Avatar size='md' color="initials" name='tas jsa' />
+      <Avatar size='md' color="initials" name='ojas ts' />
+      <Avatar size='md' color="initials">+5</Avatar>
+    </Avatar.Group>,
+    sortable: true,
+  },
+  {
+    accessor: 'created_at',
+    title: 'Classes ',
     render: ({ created_at }) => 20,
     sortable: true,
   },

@@ -47,7 +47,6 @@ export function ClassesTable() {
   const [search, setSearch] = useState('');
   const [debouncedSearchValue] = useDebounceValue(search, 500);
   const [opened, { open, close }] = useDisclosure(false);
-  const [rowClicked, setRowClicked] = useState<Tables<'classes'> | null>(null);
 
   const supabase = useSupabase();
   const { school } = useSession();
@@ -94,12 +93,8 @@ export function ClassesTable() {
           highlightOnHover
           loaderColor="orange"
           loaderBackgroundBlur={1}
-          onRowClick={({ record, index, event }) => {
-            setRowClicked(record);
-            open();
-          }}
+
         />
-        <AssignedStudentsDataTable opened={opened} close={close} rowClicked={rowClicked} />
       </ScrollArea>
       <Card.Section withBorder inheritPadding mt={'sm'} py="md">
         <Group justify="space-between" align={'center'} w="100%">

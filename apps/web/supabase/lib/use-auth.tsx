@@ -6,16 +6,27 @@ import useSupabase from '@/supabase/lib/use-supabase';
 
 export const useSession = () => {
   const supabase = useSupabase();
-  const { school } = useParams<{ school: string }>();
-  const { data, error } = useQuery({
+  const params = useParams<{ school: string }>();
+  const user = useQuery({
     queryKey: ['user'],
-    queryFn: async () => supabase.auth.getUser(),
+    queryFn: async () => await supabase.auth
+      .getUser().then(({ data }) => data),
+    retry: 1,
+  });
+  const school = useQuery({
+    queryKey: ['school'],
+    queryFn: async () => await supabase.from('schools')
+      .select('*')
+      .eq("id", params.school)
+      .single().then(({ data }) => data),
     retry: 1,
   });
   return {
-    user: data?.data.user,
+    loading: user.isLoading || school.isLoading,
+    user: user?.data?.user,
     school: {
-      id: school,
+      id: params.school,
+      ...school?.data
     },
   };
 };
