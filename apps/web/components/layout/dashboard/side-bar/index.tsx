@@ -61,7 +61,7 @@ export const dashboard_routes = [
   { link: '/students', label: 'Student management', icon: IconUsersGroup },
   {
     link: '/classes',
-    label: 'Classes and Levels',
+    label: 'Classes & assignments',
     icon: IconAutomaticGearbox,
     group: [
       { link: '/classes', label: 'Classes' },

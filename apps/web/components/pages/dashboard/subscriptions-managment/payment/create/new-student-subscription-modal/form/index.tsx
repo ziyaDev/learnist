@@ -1,7 +1,7 @@
 'use client';
 
 import { IconCheck, IconTrash } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import {
   ActionIcon,
@@ -19,7 +19,11 @@ import {
   Switch,
   TagsInput,
   TextInput,
+  Text,
   useCombobox,
+  Title,
+  Skeleton,
+  NumberFormatter,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm, zodResolver } from '@mantine/form';
@@ -31,14 +35,17 @@ import { tanstackQueryClient } from '@/utils/provider/queries';
 import classNames from './style.module.css';
 import ClassSelect from '@/components/pages/dashboard/classes-managment/select';
 import StudentSelect from '@/components/pages/dashboard/student-managment/select';
+import { DateTime } from 'luxon';
+import { useEffect } from 'react';
 
 const schema = z.object({
   student_id: z.coerce.number(),
   targeted_classes: z.array(
     z.object({
       class_id: z.coerce.number(),
-      period: z.coerce.number(),
-      period_type: z.string(z.enum(['month', 'day'])),
+      period: z.coerce.number().min(1),
+      auto_assign: z.boolean(),
+      total: z.number(),
       key: z.string(),
     })
   ),
@@ -62,7 +69,8 @@ const defaultValues = {
     {
       class_id: 0,
       period: 1,
-      period_type: "month",
+      total: 0,
+      auto_assign: false,
       key: randomId(),
     }
   ],
@@ -74,7 +82,7 @@ const defaultValues = {
     },
   ],
 } as FormType; // to avoid the missing fields initialValues
-export default function NewPaymentForm({ closeModal }: { closeModal?: () => void }) {
+export default function NewStudentSubscriptionForm({ closeModal }: { closeModal?: () => void }) {
   const form = useForm<FormType>({
     mode: 'controlled',
     validate: zodResolver(schema),
@@ -142,21 +150,47 @@ export default function NewPaymentForm({ closeModal }: { closeModal?: () => void
                 key={form.key(`targeted_classes.${index}.class_id`)}
                 {...form.getInputProps(`targeted_classes.${index}.class_id`)}
               />
-              <Select
-                label="Period type"
-                withAsterisk
-                defaultValue={'month'}
-                key={form.key(`targeted_classes.${index}.period_type`)}
-                {...form.getInputProps(`targeted_classes.${index}.period_type`)}
-                data={['Day', 'Month']}
-              />
-              <TextInput
-                label="Period"
+              <NumberInput
+                label="Period (monthly)"
+                min={1}
+                description="The period that the student will be paying for"
                 placeholder="1"
                 withAsterisk
                 key={form.key(`targeted_classes.${index}.period`)}
                 {...form.getInputProps(`targeted_classes.${index}.period`)}
               />
+              <DateInput
+                valueFormat="YYYY MMM DD"
+                label="Start date"
+                minDate={new Date()}
+                size='sm'
+                placeholder={`Today's ${DateTime.fromJSDate(new Date()).toFormat('yyyy MMM dd')}`}
+                key={form.key(`targeted_classes.${index}.start_date`)}
+                disabled={form.getValues().targeted_classes[index].auto_assign}
+                {...form.getInputProps(`targeted_classes.${index}.start_date`)}
+              />
+              <Input.Wrapper mt={'sm'}>
+                <Switch
+                  label="Automatically assign start date when class starts"
+                  key={form.key(`targeted_classes.${index}.auto_assign`)}
+                  {...form.getInputProps(`targeted_classes.${index}.auto_assign`)}
+                />
+              </Input.Wrapper>
+              <Group justify="center" mt="md" className={classNames.dashedBorder}>
+
+
+                <ClassTotalPriceCalculator
+                  period={form.getValues().targeted_classes[index].period}
+                  class_id={form.getValues().targeted_classes[index].class_id}
+                  onValueChange={(value) => {
+                    form.setFieldValue(`targeted_classes.${index}.total`, value);
+                  }}
+                />
+
+
+
+
+              </Group>
             </Fieldset>
           );
         })}
@@ -217,14 +251,69 @@ export default function NewPaymentForm({ closeModal }: { closeModal?: () => void
           </Button>
         </Group>
       </Fieldset>
+      <Group justify="center" mt="md" className={classNames.dashedBorder}>
+        <Title order={4}>Total is:</Title>
+        <Title order={4}>
+          <NumberFormatter suffix=" DZD"
+            value={form.getValues().targeted_classes.reduce((acc, curr) => acc + curr.total, 0)}
+            thousandSeparator
+          />
+        </Title>
+
+      </Group>
       <Group mt="md" justify="space-between" grow>
         <Button variant="default" type="button">
           Cancel
         </Button>
         <Button type="submit" loading={isPending}>
-          Create
+          Confirm and create
         </Button>
       </Group>
     </form>
   );
+}
+
+type ClassTotalPriceCalculatorProps = {
+  class_id: number;
+  period: number;
+  onValueChange: (value: number) => void;
+}
+
+const ClassTotalPriceCalculator = ({ class_id, period, onValueChange }: ClassTotalPriceCalculatorProps) => {
+  const supabase = useSupabase();
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['classes', class_id],
+    queryFn: async () => await supabase.from('classes').select('price').eq('id', class_id).single().then(res => res.data),
+    enabled: !!class_id,
+  });
+  useEffect(() => {
+    if (data) {
+      onValueChange(data.price * period)
+    }
+  }, [data, period])
+  if (!class_id) {
+    return <>
+      <Title order={4}>Target total:</Title>
+      <Title order={4}>
+        <NumberFormatter suffix=" DZD" value={0} thousandSeparator />
+      </Title>
+    </>
+  }
+  if (isLoading) {
+    return <Skeleton height={30} width={300} />
+  }
+  if (!data || error) {
+    return <Text size="sm">
+      Error calculating price
+    </Text>
+  }
+
+  return <>
+    <Title order={4}>Target total:</Title>
+    <Title order={4}>
+      <NumberFormatter suffix=" DZD" value={data.price * period} thousandSeparator />
+    </Title>
+  </>
+
+
 }

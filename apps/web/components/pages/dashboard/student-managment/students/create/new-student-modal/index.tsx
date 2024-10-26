@@ -31,10 +31,11 @@ export default function NewStudentModal() {
         padding={'md'}
         shadow="lg"
         size={'lg'}
-        position="left"
+        position="right"
       >
         <NewStudentForm closeModal={close} />
       </Drawer>
+
       <Button onClick={open} leftSection={<IconPlus size={18} />}>
         Add new student
       </Button>

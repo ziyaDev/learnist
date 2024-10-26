@@ -60,7 +60,7 @@ export default function NewStudentForm({ closeModal }: { closeModal?: () => void
   });
 
   return (
-    <form onSubmit={form.onSubmit((values) => mutate(values))}>
+    <form onSubmit={form.onSubmit((values) => mutate(values))} >
       <Fieldset legend="Basic information">
         <TextInput
           withAsterisk

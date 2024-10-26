@@ -3,10 +3,10 @@ import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { colorSchemeManager, theme } from '../theme';
 
-import '@mantine/dates/styles.css';
 import '@mantine/dropzone/styles.css';
 import '@mantine/notifications/styles.css';
 import 'mantine-datatable/styles.layer.css';
+import '@mantine/dates/styles.css';
 import '@mantine/core/styles.css';
 
 import QueriesProvider from '@/utils/provider/queries';
