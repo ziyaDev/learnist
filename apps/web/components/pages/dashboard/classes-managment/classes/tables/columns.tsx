@@ -4,7 +4,7 @@ import { IconDotsVertical, IconEye } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DateTime } from 'luxon';
 import { DataTableColumn } from 'mantine-datatable';
-import { ActionIcon, Avatar, Box, Group, NumberFormatter, Skeleton, Text, Tooltip, UnstyledButton } from '@mantine/core';
+import { ActionIcon, Avatar, Badge, Box, Group, NumberFormatter, Skeleton, Text, Tooltip, UnstyledButton } from '@mantine/core';
 import { Tables } from '@/supabase/database.types';
 import { useSession } from '@/supabase/lib/use-auth';
 import { useDisclosure } from '@mantine/hooks';
@@ -77,6 +77,14 @@ export const columns: DataTableColumn<Tables<'classes'>>[] = [
         </>
       )
     },
+    sortable: true,
+  },
+  {
+    accessor: 'is_started',
+    title: 'Status',
+    render: ({ is_started }) => <Badge
+      variant='light'
+      color={is_started ? 'blue' : 'gray'}>{is_started ? 'In Session' : 'Not started'}</Badge>,
     sortable: true,
   },
   {

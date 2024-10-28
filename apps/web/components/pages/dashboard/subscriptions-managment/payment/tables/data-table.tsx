@@ -37,7 +37,7 @@ export function PaymentsTable() {
   const [selection, setSelection] = useState<Tables<'classes'>[]>([]);
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus<Tables<'classes'>>>({
     columnAccessor: 'created_at',
-    direction: 'asc',
+    direction: 'desc',
   });
   const [pagination, setPagination] = useState<{ page: number; pageSize: number }>({
     page: 0,
@@ -50,15 +50,16 @@ export function PaymentsTable() {
   const supabase = useSupabase();
   const { school } = useSession();
   const { data, isLoading } = useQuery({
-    queryKey: ['classes', school?.id, pagination.page, debouncedSearchValue, sortStatus],
+    queryKey: ['student_subscription', school?.id, pagination.page, debouncedSearchValue, sortStatus],
     queryFn: async () => {
       const start = pagination.page * pagination.pageSize;
       const end = start + pagination.pageSize - 1;
       return supabase
-        .from('classes')
-        .select('*', { count: 'exact' })
+        .from("student_subscription")
+        .select(`*,
+          student_subscription_classes (*)
+          `, { count: 'exact' })
         .eq('school_id', school.id || 0)
-        .ilike('name', `%${debouncedSearchValue}%`)
         .order(sortStatus.columnAccessor, { ascending: sortStatus.direction === 'asc' })
         .range(start, end)
         .then((res) => res);

@@ -13,26 +13,32 @@ export type Database = {
         Row: {
           created_at: string
           id: number
+          is_started: boolean
           level_id: number
           name: string
           price: number
           school_id: string | null
+          start_at: string | null
         }
         Insert: {
           created_at?: string
           id?: number
+          is_started?: boolean
           level_id: number
           name: string
           price?: number
           school_id?: string | null
+          start_at?: string | null
         }
         Update: {
           created_at?: string
           id?: number
+          is_started?: boolean
           level_id?: number
           name?: string
           price?: number
           school_id?: string | null
+          start_at?: string | null
         }
         Relationships: [
           {
@@ -329,23 +335,26 @@ export type Database = {
           },
         ]
       }
-      student_payment: {
+      student_subscription: {
         Row: {
           created_at: string
           id: number
           school_id: string
+          status: string
           student_id: number
         }
         Insert: {
           created_at?: string
           id?: number
           school_id: string
+          status?: string
           student_id: number
         }
         Update: {
           created_at?: string
           id?: number
           school_id?: string
+          status?: string
           student_id?: number
         }
         Relationships: [
@@ -365,27 +374,33 @@ export type Database = {
           },
         ]
       }
-      student_payment_classes: {
+      student_subscription_classes: {
         Row: {
-          amount: number
           class_id: number | null
           created_at: string
+          end_date: string | null
           id: number
+          last_amount_paid: number
           student_payment_id: number
+          subscription_total: number
         }
         Insert: {
-          amount?: number
           class_id?: number | null
           created_at?: string
+          end_date?: string | null
           id?: number
+          last_amount_paid: number
           student_payment_id: number
+          subscription_total?: number
         }
         Update: {
-          amount?: number
           class_id?: number | null
           created_at?: string
+          end_date?: string | null
           id?: number
+          last_amount_paid?: number
           student_payment_id?: number
+          subscription_total?: number
         }
         Relationships: [
           {
@@ -399,7 +414,7 @@ export type Database = {
             foreignKeyName: "student_payment_classes_student_payment_id_fkey"
             columns: ["student_payment_id"]
             isOneToOne: false
-            referencedRelation: "student_payment"
+            referencedRelation: "student_subscription"
             referencedColumns: ["id"]
           },
         ]
@@ -435,6 +450,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "students_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sub_fields: {
+        Row: {
+          assigned_table_id: number
+          created_at: string
+          field: string
+          id: number
+          school_id: string
+          value: string
+        }
+        Insert: {
+          assigned_table_id: number
+          created_at?: string
+          field: string
+          id?: number
+          school_id: string
+          value: string
+        }
+        Update: {
+          assigned_table_id?: number
+          created_at?: string
+          field?: string
+          id?: number
+          school_id?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sub_fields_school_id_fkey"
             columns: ["school_id"]
             isOneToOne: false
             referencedRelation: "schools"
@@ -515,6 +565,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_student_subscription: {
+        Args: {
+          ag_school_id: string
+          ag_student_id: number
+          ag_auto_assign_student_to_classes: boolean
+          ag_is_paid: boolean
+          student_subscription_class: Database["public"]["CompositeTypes"]["class_record"][]
+        }
+        Returns: number
+      }
       get_classes_enrollment_for_student: {
         Args: {
           ag_school_id: string
@@ -523,10 +583,12 @@ export type Database = {
         Returns: {
           created_at: string
           id: number
+          is_started: boolean
           level_id: number
           name: string
           price: number
           school_id: string | null
+          start_at: string | null
         }[]
       }
       get_student_enrollment_in_class: {
@@ -553,7 +615,12 @@ export type Database = {
       plan: "FREE" | "PRO"
     }
     CompositeTypes: {
-      [_ in never]: never
+      class_record: {
+        ag_class_id: number | null
+        ag_end_date: string | null
+        ag_period: number | null
+        ag_automatically_assign_start_date: boolean | null
+      }
     }
   }
 }

@@ -24,9 +24,11 @@ import {
   Title,
   Skeleton,
   NumberFormatter,
+  Box,
+  LoadingOverlay,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { useForm, zodResolver } from '@mantine/form';
+import { UseFieldReturnType, useForm, UseFormReturnType, zodResolver } from '@mantine/form';
 import { randomId } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useSession } from '@/supabase/lib/use-auth';
@@ -40,17 +42,18 @@ import { useEffect } from 'react';
 
 const schema = z.object({
   student_id: z.coerce.number(),
+  auto_assign: z.boolean().default(true),
+  is_paid: z.boolean(),
   targeted_classes: z.array(
     z.object({
       class_id: z.coerce.number(),
       period: z.coerce.number().min(1),
-      auto_assign: z.boolean(),
+      auto_assign: z.boolean().optional(),
+      start_date: z.coerce.date().optional(),
       total: z.number(),
       key: z.string(),
     })
   ),
-
-
   sub_fields: z
     .array(
       z.object({
@@ -60,10 +63,25 @@ const schema = z.object({
       })
     )
     .max(10),
-});
+}).superRefine((args, ctx) => {
+
+  args.targeted_classes.forEach((targeted_class, index) => {
+    if (!targeted_class.auto_assign && !targeted_class.start_date) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Start date is required when auto assign is not enabled',
+        path: [`targeted_classes.${index}.start_date`],
+      });
+    }
+  })
+})
+
+
 type FormType = z.infer<typeof schema>;
 
 const defaultValues = {
+  auto_assign: true,
+  is_paid: true,
   // we pass only values we need at first render
   targeted_classes: [
     {
@@ -92,36 +110,57 @@ export default function NewStudentSubscriptionForm({ closeModal }: { closeModal?
   const supabase = useSupabase();
   const { mutate, isPending } = useMutation({
     mutationFn: async (values: z.infer<typeof schema>) => {
-      const { data, error } = await supabase
-        .from('student_payment')
-        .insert({
-          school_id: school?.id || '',
-          student_id: values.student_id
-        })
-        .select('id')
-        .single();
+      // const { data, error } = await supabase
+      //   .from("student_subscription")
+      //   .insert({
+      //     school_id: school?.id || '',
+      //     student_id: values.student_id,
+      //     targeted_classes: values.targeted_classes.map((targeted_class) => ({
+      //       class_id: targeted_class.class_id,
+      //       period: targeted_class.period,
+      //       auto_assign: targeted_class.auto_assign,
+      //       start_date: targeted_class.start_date,
+      //       total: targeted_class.total,
+      //       last_amount_paid: targeted_class.total,
+      //     }))
+      //   })
+      //   .select('id')
+      //   .single();
+      const { data, error } = await supabase.rpc("create_student_subscription", {
+        ag_school_id: school?.id || '',
+        ag_student_id: values.student_id,
+        ag_auto_assign_student_to_classes: values.auto_assign,
+        ag_is_paid: values.is_paid,
+        student_subscription_class: values.targeted_classes.map((targeted_class) => ({
+          ag_class_id: targeted_class.class_id,
+          ag_end_date: targeted_class.start_date?.toISOString() || null,
+          ag_period: targeted_class.period,
+          ag_automatically_assign_start_date: targeted_class.auto_assign || false,
+        }))
+      })
       if (!data || error) {
         notifications.show({
-          title: 'Error creating payment',
-          message: error.message,
+          title: 'Error creating subscription',
+          message: error?.message,
           color: 'red',
         });
         return;
       }
-      const filterd = values.sub_fields.filter((field) => field.label !== '' || field.value !== '')
-      if (!filterd.length) {
-        return;
-      }
-      await supabase.from('classes_sub_fields').insert(
-        filterd.map((field) => ({
-          class_id: data.id,
-          field: field.label,
-          value: field.value,
-        }))
-      );
+      // const filterd = values.sub_fields.filter((field) => field.label !== '' || field.value !== '')
+      // if (!filterd.length) {
+      //   return;
+      // }
+      // await supabase.from('sub_fields').insert(
+      //   filterd.map((field) => ({
+      //     assigned_table_id: data.id,
+      //     school_id: school?.id || '',
+      //     field: field.label,
+      //     value: field.value,
+      //   }))
+      // );
     },
     onSuccess: async () => {
-      tanstackQueryClient.invalidateQueries({ queryKey: ['classes'] });
+      tanstackQueryClient.invalidateQueries({ queryKey: ['student_subscription', school.id] });
       closeModal?.();
     },
     onError: (error) => {
@@ -140,59 +179,22 @@ export default function NewStudentSubscriptionForm({ closeModal }: { closeModal?
           key={form.key('student_id')}
           {...form.getInputProps('student_id')}
         />
+        <Input.Wrapper mt={'sm'} >
+          <Switch
+            description="Enable this option to automatically assign student to the class"
+            label="Automatically assign to class"
+            mt='xs'
+            key={form.key(`auto_assign`)}
+            defaultChecked={form.getValues().auto_assign}
+            {...form.getInputProps(`auto_assign`)}
+          />
+        </Input.Wrapper>
+
 
       </Fieldset>
       <Fieldset legend="Targeted classes">
         {form.getValues().targeted_classes.map((field, index) => {
-          return (
-            <Fieldset legend={`Target ${index + 1}:`} key={field.key} mt="xs">
-              <ClassSelect
-                key={form.key(`targeted_classes.${index}.class_id`)}
-                {...form.getInputProps(`targeted_classes.${index}.class_id`)}
-              />
-              <NumberInput
-                label="Period (monthly)"
-                min={1}
-                description="The period that the student will be paying for"
-                placeholder="1"
-                withAsterisk
-                key={form.key(`targeted_classes.${index}.period`)}
-                {...form.getInputProps(`targeted_classes.${index}.period`)}
-              />
-              <DateInput
-                valueFormat="YYYY MMM DD"
-                label="Start date"
-                minDate={new Date()}
-                size='sm'
-                placeholder={`Today's ${DateTime.fromJSDate(new Date()).toFormat('yyyy MMM dd')}`}
-                key={form.key(`targeted_classes.${index}.start_date`)}
-                disabled={form.getValues().targeted_classes[index].auto_assign}
-                {...form.getInputProps(`targeted_classes.${index}.start_date`)}
-              />
-              <Input.Wrapper mt={'sm'}>
-                <Switch
-                  label="Automatically assign start date when class starts"
-                  key={form.key(`targeted_classes.${index}.auto_assign`)}
-                  {...form.getInputProps(`targeted_classes.${index}.auto_assign`)}
-                />
-              </Input.Wrapper>
-              <Group justify="center" mt="md" className={classNames.dashedBorder}>
-
-
-                <ClassTotalPriceCalculator
-                  period={form.getValues().targeted_classes[index].period}
-                  class_id={form.getValues().targeted_classes[index].class_id}
-                  onValueChange={(value) => {
-                    form.setFieldValue(`targeted_classes.${index}.total`, value);
-                  }}
-                />
-
-
-
-
-              </Group>
-            </Fieldset>
-          );
+          return <TargetedClassesForm index={index} form={form} key={field.key} />
         })}
         <Group justify="center" mt="md" className={classNames.dashedBorder}>
           <Button
@@ -210,6 +212,7 @@ export default function NewStudentSubscriptionForm({ closeModal }: { closeModal?
           </Button>
         </Group>
       </Fieldset>
+
       <Fieldset legend="Additional information">
         {form.getValues().sub_fields.map((field, index) => {
           return (
@@ -251,6 +254,7 @@ export default function NewStudentSubscriptionForm({ closeModal }: { closeModal?
           </Button>
         </Group>
       </Fieldset>
+
       <Group justify="center" mt="md" className={classNames.dashedBorder}>
         <Title order={4}>Total is:</Title>
         <Title order={4}>
@@ -261,6 +265,16 @@ export default function NewStudentSubscriptionForm({ closeModal }: { closeModal?
         </Title>
 
       </Group>
+      <Input.Wrapper mt={'sm'} >
+        <Switch
+          description="Enable this option to mark the student as paid"
+          label="Mark as paid"
+          mt='xs'
+          key={form.key(`is_paid`)}
+          defaultChecked={form.getValues().is_paid}
+          {...form.getInputProps(`is_paid`)}
+        />
+      </Input.Wrapper>
       <Group mt="md" justify="space-between" grow>
         <Button variant="default" type="button">
           Cancel
@@ -272,6 +286,76 @@ export default function NewStudentSubscriptionForm({ closeModal }: { closeModal?
     </form>
   );
 }
+
+const TargetedClassesForm = ({ form, index }: { form: UseFormReturnType<FormType>, index: number }) => {
+  const supabase = useSupabase()
+  const { } = useQuery({
+    queryKey: ['classes'],
+    queryFn: async () =>
+      await supabase.from('classes').select('*').eq('id', form.getValues().targeted_classes[index].class_id).single().then(res => res.data)
+    ,
+  })
+
+  return <Fieldset legend={`Target ${index + 1}:`} mt="xs">
+    <ClassSelect
+      key={form.key(`targeted_classes.${index}.class_id`)}
+      {...form.getInputProps(`targeted_classes.${index}.class_id`)}
+    />
+    <NumberInput
+      label="Period (monthly)"
+      min={1}
+      description="The period that the student will be paying for"
+      placeholder="1"
+      withAsterisk
+      key={form.key(`targeted_classes.${index}.period`)}
+      {...form.getInputProps(`targeted_classes.${index}.period`)}
+    />
+    <DateInput
+      valueFormat="YYYY MMM DD"
+      label="Start date"
+      description="The date when the student will start the class, also when the subscription starts"
+      minDate={new Date()}
+      size='sm'
+      placeholder={`Today's ${DateTime.fromJSDate(new Date()).toFormat('yyyy MMM dd')}`}
+      key={form.key(`targeted_classes.${index}.start_date`)}
+      disabled={form.getValues().targeted_classes[index].auto_assign}
+      {...form.getInputProps(`targeted_classes.${index}.start_date`)}
+    />
+    <Input.Wrapper mt={'sm'}>
+      <Switch
+        label="Automatically assign start date when class starts"
+        description="Enable this option to automatically assign the start date when the class starts"
+        key={form.key(`targeted_classes.${index}.auto_assign`)}
+        {...form.getInputProps(`targeted_classes.${index}.auto_assign`)}
+      />
+    </Input.Wrapper>
+    <Group justify="center" mt="md" className={classNames.dashedBorder}>
+
+
+      <ClassTotalPriceCalculator
+        period={form.getValues().targeted_classes[index].period}
+        class_id={form.getValues().targeted_classes[index].class_id}
+        onValueChange={(value) => {
+          form.setFieldValue(`targeted_classes.${index}.total`, value);
+        }}
+      />
+
+
+
+
+    </Group>
+    <Group justify="center" mt="md" className={classNames.border}>
+
+      <Button disabled={form.getValues().targeted_classes.length <= 1} onClick={() => form.removeListItem('targeted_classes', index)} color="red" size="xs">
+        Remove
+      </Button>
+    </Group>
+  </Fieldset>
+
+}
+
+
+
 
 type ClassTotalPriceCalculatorProps = {
   class_id: number;
