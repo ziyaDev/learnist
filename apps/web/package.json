@@ -19,15 +19,15 @@
     "storybook:build": "storybook build"
   },
   "dependencies": {
-    "@clerk/nextjs": "^5.7.2",
     "@mantine/core": "7.13.0",
     "@mantine/hooks": "7.13.0",
     "@next/bundle-analyzer": "^14.2.4",
     "@tabler/icons-react": "^3.6.0",
-    "next": "14.2.4",
+    "next": "14.2.10",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "@learnist/utils": "workspace:*"
+    "@learnist/utils": "workspace:*",
+    "@learnist/invoice": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
