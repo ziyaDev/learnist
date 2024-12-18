@@ -29,6 +29,7 @@ export default async function AppMiddleware(req: NextRequest, user: User) {
       return NextResponse.rewrite(new URL('/not-found', req.url));
     }
   }
+  const response = NextResponse.next();
 
-  return NextResponse.next();
+  return response;
 }

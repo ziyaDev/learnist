@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { IconFilter, IconSearch, IconSortAscending, IconSortDescending } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import cx from 'clsx';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
-import { spec } from 'node:test/reporters';
 import { useDebounceValue } from 'usehooks-ts';
 import {
   Avatar,
@@ -31,7 +31,6 @@ import { createClient } from '@/supabase/lib/client';
 import { useSession } from '@/supabase/lib/use-auth';
 import useSupabase from '@/supabase/lib/use-supabase';
 import { columns } from './columns';
-import AssignedStudentsDataTable from './students/data-table';
 import classes from './style.module.css';
 
 export function ClassesTable() {
@@ -65,6 +64,7 @@ export function ClassesTable() {
         .then((res) => res);
     },
   });
+  const router = useRouter();
   const totalPages = data?.count ? Math.ceil(data.count / pagination.pageSize) : 0;
 
   return (
@@ -87,13 +87,15 @@ export function ClassesTable() {
           minHeight={300}
           records={data?.data || []}
           columns={columns}
+          onRowClick={({ record }) => {
+            router.push(`/dashboard/${school.id}/classes/${record.id}`);
+          }}
           striped
           sortStatus={sortStatus}
           onSortStatusChange={setSortStatus}
           highlightOnHover
           loaderColor="orange"
           loaderBackgroundBlur={1}
-
         />
       </ScrollArea>
       <Card.Section withBorder inheritPadding mt={'sm'} py="md">

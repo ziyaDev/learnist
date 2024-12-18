@@ -5,7 +5,11 @@ import { PaymentsTable } from '@/components/pages/dashboard/subscriptions-managm
 export default function Page() {
   return (
     <>
-      <PageHeader caption="Subscriptions management" title="payments" primaryAction={<NewStudentSubscriptionForm />} />
+      <PageHeader
+        caption="Subscriptions management"
+        title="payments"
+        primaryAction={<NewStudentSubscriptionForm />}
+      />
       <PaymentsTable />
     </>
   );

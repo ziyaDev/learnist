@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { IconFilter, IconSearch, IconSortAscending, IconSortDescending } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import cx from 'clsx';
@@ -33,9 +34,17 @@ import useSupabase from '@/supabase/lib/use-supabase';
 import { columns } from './columns';
 import classes from './style.module.css';
 
-export function PaymentsTable() {
-  const [selection, setSelection] = useState<Tables<'classes'>[]>([]);
-  const [sortStatus, setSortStatus] = useState<DataTableSortStatus<Tables<'classes'>>>({
+export function PaymentsTable({
+  filter_student,
+  filter_class,
+}: {
+  filter_student?: number;
+  filter_class?: number;
+}) {
+  const [selection, setSelection] = useState<Tables<'student_class_subscription'>[]>([]);
+  const [sortStatus, setSortStatus] = useState<
+    DataTableSortStatus<Tables<'student_class_subscription'>>
+  >({
     columnAccessor: 'created_at',
     direction: 'desc',
   });
@@ -50,21 +59,36 @@ export function PaymentsTable() {
   const supabase = useSupabase();
   const { school } = useSession();
   const { data, isLoading } = useQuery({
-    queryKey: ['student_subscription', school?.id, pagination.page, debouncedSearchValue, sortStatus],
+    queryKey: [
+      'student_class_subscription',
+      school?.id,
+      pagination.page,
+      debouncedSearchValue,
+      sortStatus,
+      filter_student,
+    ],
     queryFn: async () => {
       const start = pagination.page * pagination.pageSize;
       const end = start + pagination.pageSize - 1;
-      return supabase
-        .from("student_subscription")
-        .select(`*,
-          student_subscription_classes (*)
-          `, { count: 'exact' })
+      const query = supabase
+        .from('student_class_subscription')
+        .select(`*`, { count: 'exact' })
         .eq('school_id', school.id || 0)
         .order(sortStatus.columnAccessor, { ascending: sortStatus.direction === 'asc' })
-        .range(start, end)
-        .then((res) => res);
+        .range(start, end);
+      if (debouncedSearchValue) {
+        query.eq('id', Number(debouncedSearchValue));
+      }
+      if (filter_student) {
+        query.eq('student_id', filter_student);
+      }
+      if (filter_class) {
+        query.eq('class_id', filter_class);
+      }
+      return query.then((res) => res);
     },
   });
+  const router = useRouter();
   const totalPages = data?.count ? Math.ceil(data.count / pagination.pageSize) : 0;
 
   return (
@@ -73,12 +97,13 @@ export function PaymentsTable() {
         <Flex align={'center'} w="100%" pb={'sm'}>
           <TextInput
             w={'100%'}
-            placeholder="Search by full name"
+            placeholder="Search by id"
             leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </Flex>
+
         <DataTable
           fetching={isLoading}
           verticalSpacing="sm"
@@ -91,9 +116,11 @@ export function PaymentsTable() {
           sortStatus={sortStatus}
           onSortStatusChange={setSortStatus}
           highlightOnHover
+          onRowClick={({ record }) => {
+            router.push(`/dashboard/${school.id}/subscriptions/${record.id}`);
+          }}
           loaderColor="orange"
           loaderBackgroundBlur={1}
-
         />
       </ScrollArea>
       <Card.Section withBorder inheritPadding mt={'sm'} py="md">

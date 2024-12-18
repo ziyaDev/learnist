@@ -9,16 +9,18 @@ export const useSession = () => {
   const params = useParams<{ school: string }>();
   const user = useQuery({
     queryKey: ['user'],
-    queryFn: async () => await supabase.auth
-      .getUser().then(({ data }) => data),
+    queryFn: async () => await supabase.auth.getUser().then(({ data }) => data),
     retry: 1,
   });
   const school = useQuery({
     queryKey: ['school'],
-    queryFn: async () => await supabase.from('schools')
-      .select('*')
-      .eq("id", params.school)
-      .single().then(({ data }) => data),
+    queryFn: async () =>
+      await supabase
+        .from('schools')
+        .select('*')
+        .eq('id', params.school)
+        .single()
+        .then(({ data }) => data),
     retry: 1,
   });
   return {
@@ -26,7 +28,7 @@ export const useSession = () => {
     user: user?.data?.user,
     school: {
       id: params.school,
-      ...school?.data
+      ...school?.data,
     },
   };
 };

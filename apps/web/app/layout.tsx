@@ -3,11 +3,12 @@ import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { colorSchemeManager, theme } from '../theme';
 
-import '@mantine/dropzone/styles.css';
-import '@mantine/notifications/styles.css';
+import '@mantine/dropzone/styles.layer.css';
+import '@mantine/notifications/styles.layer.css';
+import '@mantine/dates/styles.layer.css';
+import '@mantine/core/styles.layer.css';
 import 'mantine-datatable/styles.layer.css';
-import '@mantine/dates/styles.css';
-import '@mantine/core/styles.css';
+import './globals.css';
 
 import QueriesProvider from '@/utils/provider/queries';
 
@@ -20,7 +21,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en">
       <head>
-        <ColorSchemeScript />
+        <ColorSchemeScript defaultColorScheme="auto" />
         <link rel="shortcut icon" href="/favicon.svg" />
         <meta
           name="viewport"
@@ -31,7 +32,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
         <MantineProvider
           theme={theme}
           colorSchemeManager={colorSchemeManager}
-          defaultColorScheme="dark"
+          defaultColorScheme="auto"
         >
           <QueriesProvider>
             <Notifications position="top-right" />

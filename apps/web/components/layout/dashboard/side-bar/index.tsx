@@ -56,7 +56,7 @@ import { LinksGroup } from './links-group';
 import classes from './style.module.css';
 
 export const dashboard_routes = [
-  { link: '', label: 'Overview', icon: IconHome },
+  { link: '/overview', label: 'Overview', icon: IconHome },
   { link: '/teachers', label: 'Teacher management', icon: IconSchool },
   { link: '/students', label: 'Student management', icon: IconUsersGroup },
   {
@@ -85,7 +85,6 @@ export function DashboardSidebar({
   const { school } = useSession();
   const [opened, { toggle }] = useDisclosure();
   const [userMenuOpened, setUserMenuOpened] = useState(false);
-  const theme = useMantineTheme();
   const links = dashboard_routes.map((item) => {
     if (item.group) {
       return (
@@ -95,7 +94,7 @@ export function DashboardSidebar({
           links={item.group.map((link) => ({
             label: link.label,
             link: `/dashboard/${school.id}` + link.link,
-            active: pathName === `/dashboard/${school.id}` + link.link,
+            active: pathName.startsWith(`/dashboard/${school.id}` + link.link),
           }))}
           initiallyOpened={
             item.group.some((s) => pathName === `/dashboard/${school.id}` + s.link) || undefined
@@ -106,7 +105,7 @@ export function DashboardSidebar({
     return (
       <Link
         className={classes.link}
-        data-active={pathName === `/dashboard/${school.id}` + item.link || undefined}
+        data-active={pathName.startsWith(`/dashboard/${school.id}` + item.link) || undefined}
         href={`/dashboard/${school.id}` + item.link}
         key={item.label}
       >

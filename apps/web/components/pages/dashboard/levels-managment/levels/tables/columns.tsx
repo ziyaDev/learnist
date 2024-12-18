@@ -17,24 +17,31 @@ export const columns: DataTableColumn<Tables<'levels'>>[] = [
   {
     accessor: 'created_at',
     title: 'Teachers ',
-    render: ({ created_at }) =>
+    render: ({ created_at }) => (
       <Avatar.Group>
-        <Avatar size='md' color="initials" name='abdo s' />
-        <Avatar size='md' color="initials" name='das dy' />
-        <Avatar size='md' color="initials" name='lorem2 s' />
-        <Avatar size='md' color="initials">+5</Avatar>
-      </Avatar.Group>,
+        <Avatar size="md" color="initials" name="abdo s" />
+        <Avatar size="md" color="initials" name="das dy" />
+        <Avatar size="md" color="initials" name="lorem2 s" />
+        <Avatar size="md" color="initials">
+          +5
+        </Avatar>
+      </Avatar.Group>
+    ),
     sortable: true,
   },
   {
     accessor: 'created_at',
     title: 'Students ',
-    render: ({ created_at }) => <Avatar.Group>
-      <Avatar size='md' color="initials" name='ojs iash' />
-      <Avatar size='md' color="initials" name='tas jsa' />
-      <Avatar size='md' color="initials" name='ojas ts' />
-      <Avatar size='md' color="initials">+5</Avatar>
-    </Avatar.Group>,
+    render: ({ created_at }) => (
+      <Avatar.Group>
+        <Avatar size="md" color="initials" name="ojs iash" />
+        <Avatar size="md" color="initials" name="tas jsa" />
+        <Avatar size="md" color="initials" name="ojas ts" />
+        <Avatar size="md" color="initials">
+          +5
+        </Avatar>
+      </Avatar.Group>
+    ),
     sortable: true,
   },
   {
@@ -54,7 +61,7 @@ export const columns: DataTableColumn<Tables<'levels'>>[] = [
 
     textAlign: 'center',
     render: (company) => (
-      <ActionIcon size="sm" variant="light">
+      <ActionIcon size="sm" variant="light" onClick={(e) => e.stopPropagation()}>
         <IconDotsVertical size={16} />
       </ActionIcon>
     ),

@@ -1,0 +1,18 @@
+{
+  "languages": {
+    "JavaScript": {
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true
+      }
+    }
+  },
+  "lsp": {
+    "eslint": {
+      "settings": {
+        "codeActionOnSave": {
+          "rules": ["import/order"]
+        }
+      }
+    }
+  }
+}

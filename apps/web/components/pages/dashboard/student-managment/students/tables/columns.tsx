@@ -31,11 +31,8 @@ export const columns: DataTableColumn<Tables<'students'>>[] = [
               <Text c={'dimmed'} size="xs" fw={500}>
                 {student?.contact_phone || 'No contact phone'}
               </Text>
-
             </Group>
-
           </Stack>
-
         </Group>
       );
     },
@@ -53,7 +50,7 @@ export const columns: DataTableColumn<Tables<'students'>>[] = [
 
     textAlign: 'center',
     render: (company) => (
-      <ActionIcon size="sm" variant="light">
+      <ActionIcon size="sm" variant="light" onClick={(e) => e.stopPropagation()}>
         <IconDotsVertical size={16} />
       </ActionIcon>
     ),

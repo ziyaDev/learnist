@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { IconFilter, IconSearch, IconSortAscending, IconSortDescending } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import cx from 'clsx';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
-import { spec } from 'node:test/reporters';
 import { useDebounceValue } from 'usehooks-ts';
 import {
   Avatar,
@@ -29,7 +29,6 @@ import { Tables } from '@/supabase/database.types';
 import { createClient } from '@/supabase/lib/client';
 import { useSession } from '@/supabase/lib/use-auth';
 import useSupabase from '@/supabase/lib/use-supabase';
-import AssignedClassesDataTable from './classes/data-table';
 import { columns } from './columns';
 import classes from './style.module.css';
 
@@ -65,13 +64,14 @@ export function StudentTable() {
     },
   });
   const totalPages = data?.count ? Math.ceil(data.count / pagination.pageSize) : 0;
+  const router = useRouter();
 
   return (
     <Card withBorder radius="md" p="md" className={classes.card}>
       <ScrollArea>
-        <Flex align={'center'} w="100%" pb={'sm'}>
+        <Flex align="center" w="100%" pb="sm">
           <TextInput
-            w={'100%'}
+            w="100%"
             placeholder="Search by full name"
             leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
             value={search}
@@ -92,15 +92,13 @@ export function StudentTable() {
           highlightOnHover
           loaderColor="orange"
           loaderBackgroundBlur={1}
-          onRowClick={({ record, index, event }) => {
-            setRowClicked(record);
-            open();
+          onRowClick={({ record }) => {
+            router.push(`/dashboard/${school.id}/students/${record.id}`);
           }}
         />
-        <AssignedClassesDataTable opened={opened} close={close} rowClicked={rowClicked} />
       </ScrollArea>
-      <Card.Section withBorder inheritPadding mt={'sm'} py="md">
-        <Group justify="space-between" align={'center'} w="100%">
+      <Card.Section withBorder inheritPadding mt="sm" py="md">
+        <Group justify="space-between" align="center" w="100%">
           <Text size="sm" c="dimmed">
             {data ? `Showing ${data?.data?.length || 0} of ${data.count} results` : 'Loading...'}
           </Text>

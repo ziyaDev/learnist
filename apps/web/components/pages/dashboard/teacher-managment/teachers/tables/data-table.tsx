@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { IconFilter, IconSearch, IconSortAscending, IconSortDescending } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import cx from 'clsx';
@@ -62,6 +63,7 @@ export function TeacherTable() {
     },
   });
   const totalPages = data?.count ? Math.ceil(data.count / pagination.pageSize) : 0;
+  const router = useRouter();
 
   return (
     <Card withBorder radius="md" p="md" className={classes.card}>
@@ -83,6 +85,9 @@ export function TeacherTable() {
           minHeight={300}
           records={data?.data || []}
           columns={columns}
+          onRowClick={({ record }) => {
+            router.push(`/dashboard/${school.id}/teachers/${record.id}`);
+          }}
           striped
           sortStatus={sortStatus}
           onSortStatusChange={setSortStatus}
