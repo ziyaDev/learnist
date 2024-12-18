@@ -23,7 +23,7 @@
     "@mantine/hooks": "7.13.0",
     "@next/bundle-analyzer": "^14.2.4",
     "@tabler/icons-react": "^3.6.0",
-    "next": "14.2.10",
+    "next": "14.2.15",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "@learnist/utils": "workspace:*",
